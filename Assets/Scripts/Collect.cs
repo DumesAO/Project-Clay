@@ -9,31 +9,76 @@ public class Collect : MonoBehaviour
 {
     // Start is called before the first frame update
     public TMP_Text text;
-    public int weight = 10;
+    public TMP_Text finishText;
+    public static int weight;
     public GameObject ball;
-    
+    int am;
+    Rigidbody rb;
+    public Canvas finishMenu;
+
     void Start()
     {
+        weight = 10;
         text.text = weight.ToString();
+        rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.layer == 7)
         {
-            Debug.Log(collision.gameObject.tag);
-            if (Int32.Parse(collision.gameObject.tag) < weight)
+            EnemyWeight enemyWeight=collision.gameObject.GetComponent<EnemyWeight>();
+            if (enemyWeight.weight <= weight)
             {
-                weight += Int32.Parse(collision.gameObject.tag);
-                text.text=weight.ToString();
+                am= enemyWeight.weight* enemyWeight.weight/weight/10+1;
                 Destroy(collision.gameObject);
-                ball.transform.localScale =new Vector3(ball.transform.localScale.x+ Int32.Parse(collision.gameObject.tag) * 0.001f, ball.transform.localScale.y+ Int32.Parse(collision.gameObject.tag) * 0.001f, ball.transform.localScale.z+ Int32.Parse(collision.gameObject.tag) * 0.001f);
+                addWeight(am);
+             
+            }
+            else
+            {
+                
+                am = -weight/2/weight/enemyWeight.weight-2;
+                addWeight(am);
+                rb.AddForce(new Vector3(-rb.velocity.x*1.2f,-rb.velocity.y*1.2f,-(rb.velocity.z+0.4f)),ForceMode.Impulse);
             }
         }
+        if (collision.gameObject.layer == 8)
+        {
+            EnemyWeight enemyWeight = collision.gameObject.GetComponent<EnemyWeight>();
+            if (enemyWeight.weight > weight)
+            {
+                addWeight(-weight / 2);
+                rb.AddForce(new Vector3(-rb.velocity.x * 2f, -rb.velocity.y * 2f, -(rb.velocity.z + 2f)), ForceMode.Impulse);
+            }
+            else { 
+                rb.velocity *= 0;
+                addWeight(weight);
+            }
+            finishText.text = weight.ToString();
+            finishMenu.enabled= true;
+            Time.timeScale = 0;
+            PauseManager.IsPaused = true;
+
+        }
+    }
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.layer == 9)
+        {
+            addWeight(-2);
+        }
+    }
+
+    void addWeight(int amount)
+    {
+        weight+= amount;
+        if (weight < 2)
+        {
+            weight= 2;
+        }
+        text.text = weight.ToString();
+        ball.transform.localScale = new Vector3(Mathf.Log(weight,2), Mathf.Log(weight, 2), Mathf.Log(weight, 2));
     }
 }

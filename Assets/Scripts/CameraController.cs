@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
     public GameObject target;
     public float offset;
     public float speed;
-    public GameObject camera;
+    public GameObject gCamera;
    
     void Update()
     {
@@ -16,8 +16,8 @@ public class CameraController : MonoBehaviour
 
     void ProcessMovement()
     {
-        Vector3 targetPos = new Vector3(camera.transform.position.x, camera.transform.position.y, target.transform.position.z + offset);
-        Vector3 Follow = Vector3.Lerp(camera.transform.position,targetPos, speed);
+        Vector3 targetPos = new Vector3(gCamera.transform.position.x, gCamera.transform.position.y, target.transform.position.z + offset);
+        Vector3 Follow = Vector3.Lerp(gCamera.transform.position,targetPos, speed);
 
         transform.position = Follow;
     }
